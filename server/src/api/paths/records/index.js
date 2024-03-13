@@ -2,8 +2,7 @@ const Airtable = require('airtable');
 
 module.exports = function () {
   const base = new Airtable({
-    apiKey:
-      'patkuF1DXzDv1pLHW.70ce17bc7843a88afd0a795126745fc21212b061c5a9457d378ea704081e202a',
+    apiKey: process.env.AIRTABLE_API_KEY,
   }).base('appcmzurr4byE791Q');
 
   const operations = {
