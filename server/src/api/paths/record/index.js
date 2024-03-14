@@ -1,6 +1,6 @@
 const Airtable = require('airtable');
 
-const createId = require('@paralleldrive/cuid2').createId();
+const init = require('@paralleldrive/cuid2').init();
 
 module.exports = function () {
   const base = new Airtable({
@@ -30,6 +30,8 @@ module.exports = function () {
     const { companyName, question, answer, updatedAt, updatedBy, createdBy } =
       body;
 
+    console.log('body', body);
+
     const createdAt = new Date()
       .toISOString()
       .replace(/T/, ' ')
@@ -39,15 +41,17 @@ module.exports = function () {
       [
         {
           fields: {
-            _recordId: createId(),
-            companyName,
-            question,
-            answer,
+            _recordId: 'recMqPCsDQ4KVPYEL',
+            companyName: 'Test Company Limited',
+            question:
+              'Do you collect any Special Category Data and if so, how do you use it?',
+            answer:
+              'As a Controller, Test Company doesn’t process any Special Category Data.',
             _companyId: 63297,
-            createdAt,
-            updatedAt,
-            updatedBy,
-            createdBy,
+            createdAt: '15/1/2024',
+            updatedAt: '15/1/2024 2:47pm',
+            updatedBy: 'founders+alex@privasee.io',
+            createdBy: 'founders+alex@privasee.io',
           },
         },
       ],
@@ -65,6 +69,18 @@ module.exports = function () {
   }
 
   function PUT(req, res) {
+    const { body } = req;
+
+    const { companyName, question, answer, updatedBy, createdAt, createdBy } =
+      body;
+
+    console.log('body', body);
+
+    const updatedAt = new Date()
+      .toISOString()
+      .replace(/T/, ' ')
+      .replace(/\..+/, '');
+
     base('Imported table').update(
       [
         {
@@ -90,7 +106,7 @@ module.exports = function () {
           return;
         }
         records.forEach(function (record) {
-          console.log(record.get('_recordId'));
+          res.status(201).send(console.log(record.getId()));
         });
       }
     );

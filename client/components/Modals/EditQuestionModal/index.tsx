@@ -33,20 +33,23 @@ import {
 } from '@/components/ui/form';
 import { toast } from '@/components/ui/use-toast';
 import { useMutation } from '@tanstack/react-query';
+import { Textarea } from '@/components/ui/textarea';
 
-export type CreateRecord = {
+export type EditRecord = {
   question: string;
+  answer?: string;
   company: string;
   properties?: string;
 };
 
 const FormSchema = z.object({
   question: z.string().min(1),
+  answer: z.string().optional(),
   company: z.string().min(1),
   properties: z.string().optional(),
 });
 
-export const CreateQuestionModal = ({
+export const EditQuestionModal = ({
   children,
 }: {
   children: React.ReactNode;
@@ -55,10 +58,10 @@ export const CreateQuestionModal = ({
     resolver: zodResolver(FormSchema),
   });
 
-  const { mutate } = useMutation<CreateRecord>({
+  const { mutate } = useMutation<EditRecord>({
     mutationFn: async (newQuestion) => {
       const response = await fetch('http://localhost:9090/api/record', {
-        method: 'POST',
+        method: 'PUT',
         body: JSON.stringify(newQuestion),
       });
 
@@ -90,9 +93,9 @@ export const CreateQuestionModal = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <DialogHeader>
-              <DialogTitle>Create Question</DialogTitle>
+              <DialogTitle>Edit Question</DialogTitle>
               <DialogDescription>
-                Create a new question here. Click save when youre done.
+                Edit the question here. Click save when youre done.
               </DialogDescription>
             </DialogHeader>
 
@@ -108,6 +111,23 @@ export const CreateQuestionModal = ({
                   <FormDescription>
                     What do you need answering today?
                   </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="answer"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Answer</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="The answer is..."
+                      className="resize-none"
+                      {...field}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

@@ -23,12 +23,17 @@ export type RecordData =
     }
   | undefined;
 
+const maxRecords = 100;
+
 export default function Home() {
   const [records, setRecords] = useState<RecordData[]>([]);
+
   const { data, isFetched } = useQuery<RecordData[]>({
     queryKey: ['Q&A'],
     queryFn: async () => {
-      const res = await fetch('http://localhost:9090/records');
+      const res = await fetch(
+        `http://localhost:9090/records/?maxRecords=${maxRecords}`
+      );
       return res.json();
     },
   });
@@ -40,7 +45,7 @@ export default function Home() {
   }, [data]);
 
   return (
-    <main className="bg-white p-8">
+    <main className={`bg-white p-8 ${inter.className}`}>
       <div className="flex flex-col space-y-6">
         <Header />
         {records && <DataTable records={records} />}

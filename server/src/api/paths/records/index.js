@@ -10,10 +10,16 @@ module.exports = function () {
   };
 
   function GET(req, res) {
+    const { query } = req;
+
+    console.log('query', query);
+
+    const { maxRecords } = query;
+
     base('Imported table')
       .select({
-        // Selecting the first 3 records in Grid view:
-        maxRecords: 10,
+        // Selecting the first 10 records in Grid view:
+        maxRecords: maxRecords ?? 10,
         view: 'Grid view',
       })
       .eachPage(
@@ -33,8 +39,16 @@ module.exports = function () {
   }
 
   GET.apiDoc = {
-    summary: 'Fetch 10 records.',
+    summary: 'Fetch records list.',
     operationId: 'getRecords',
+    parameters: [
+      {
+        in: 'query',
+        name: 'maxRecords',
+        type: 'number',
+        required: false,
+      },
+    ],
     responses: {
       200: {
         description: 'List of records.',

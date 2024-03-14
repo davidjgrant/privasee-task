@@ -47,6 +47,9 @@ import {
 } from '../ui/select';
 import { Badge } from '../ui/badge';
 import { CreateQuestionModal } from '../Modals/CreateQuestionModal';
+import { AnswerQuestionModal } from '../Modals/AnswerQuestionModal';
+import { EditQuestionModal } from '../Modals/EditQuestionModal';
+import { DeleteQuestionModal } from '../Modals/DeleteQuestionModal';
 
 export const columns: ColumnDef<RecordData>[] = [
   {
@@ -165,6 +168,10 @@ export const columns: ColumnDef<RecordData>[] = [
         return null;
       }
 
+      const handleItemClick = (e) => {
+        e.preventDefault();
+      };
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -175,24 +182,35 @@ export const columns: ColumnDef<RecordData>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(record._recordId)}
-            >
-              Copy Question ID
-            </DropdownMenuItem>
+            <AnswerQuestionModal>
+              <Button variant="secondary" size="sm">
+                Answer Question
+              </Button>
+            </AnswerQuestionModal>
             <DropdownMenuSeparator />
-            <div className="flex flex-col gap-2">
-              <DropdownMenuItem asChild>
-                <Button variant="ghost" className="w-full">
-                  Edit Question
+            <DropdownMenuItem asChild>
+              <Button
+                onClick={() => navigator.clipboard.writeText(record.question)}
+                variant={'ghost'}
+                className="w-full"
+              >
+                Copy
+              </Button>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <EditQuestionModal>
+                <Button variant={'ghost'} className="w-full">
+                  Edit
                 </Button>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Button variant="destructive" className="w-full">
-                  Delete Question
+              </EditQuestionModal>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <DeleteQuestionModal>
+                <Button variant={'ghost'} className="w-full">
+                  Delete
                 </Button>
-              </DropdownMenuItem>
-            </div>
+              </DeleteQuestionModal>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

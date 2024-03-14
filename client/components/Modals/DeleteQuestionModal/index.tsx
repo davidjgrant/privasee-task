@@ -11,13 +11,6 @@ import {
 import React from 'react';
 import { Button } from '../../ui/button';
 import { DialogHeader, DialogFooter } from '../../ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../../ui/select';
 import { Input } from '../../ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -25,7 +18,6 @@ import { z } from 'zod';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -34,19 +26,15 @@ import {
 import { toast } from '@/components/ui/use-toast';
 import { useMutation } from '@tanstack/react-query';
 
-export type CreateRecord = {
-  question: string;
-  company: string;
-  properties?: string;
+export type DeleteRecord = {
+  questionId: string;
 };
 
 const FormSchema = z.object({
-  question: z.string().min(1),
-  company: z.string().min(1),
-  properties: z.string().optional(),
+  questionId: z.string().min(1),
 });
 
-export const CreateQuestionModal = ({
+export const DeleteQuestionModal = ({
   children,
 }: {
   children: React.ReactNode;
@@ -55,10 +43,10 @@ export const CreateQuestionModal = ({
     resolver: zodResolver(FormSchema),
   });
 
-  const { mutate } = useMutation<CreateRecord>({
+  const { mutate } = useMutation<DeleteRecord>({
     mutationFn: async (newQuestion) => {
       const response = await fetch('http://localhost:9090/api/record', {
-        method: 'POST',
+        method: 'DELETE',
         body: JSON.stringify(newQuestion),
       });
 
@@ -90,63 +78,22 @@ export const CreateQuestionModal = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <DialogHeader>
-              <DialogTitle>Create Question</DialogTitle>
+              <DialogTitle>Delete Question</DialogTitle>
               <DialogDescription>
-                Create a new question here. Click save when youre done.
+                Are you sure you want to delete this question? This action
+                cannot be undone.
               </DialogDescription>
             </DialogHeader>
 
             <FormField
               control={form.control}
-              name="question"
+              name="questionId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Question</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your question" {...field} />
+                    <Input {...field} />
                   </FormControl>
-                  <FormDescription>
-                    What do you need answering today?
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="company"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Company</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a company" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Test Company Limited">
-                        Test Company Limited
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="properties"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Properties</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Add properties" {...field} />
-                  </FormControl>
-                  <FormDescription>(optional)</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -158,7 +105,9 @@ export const CreateQuestionModal = ({
                   Close
                 </Button>
               </DialogClose>
-              <Button type="submit">Save question</Button>
+              <Button variant={'destructive'} type="submit">
+                Delete question
+              </Button>
             </DialogFooter>
           </form>
         </Form>

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Dialog,
   DialogTrigger,
@@ -9,120 +11,106 @@ import {
 import React from 'react';
 import { Button } from '../../ui/button';
 import { DialogHeader, DialogFooter } from '../../ui/dialog';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../../ui/select';
-import { Label } from '../../ui/label';
-import { Input } from '../../ui/input';
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { toast } from '@/components/ui/use-toast';
+import { useMutation } from '@tanstack/react-query';
 import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '../../ui/separator';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+export type AnswerRecord = {
+  answer: string;
+};
+
+const FormSchema = z.object({
+  answer: z.string().min(1),
+});
 
 export const AnswerQuestionModal = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+  });
+
+  const { mutate } = useMutation<AnswerRecord>({
+    mutationFn: async (newQuestion) => {
+      const response = await fetch('http://localhost:9090/api/record', {
+        method: 'PUT',
+        body: JSON.stringify(newQuestion),
+      });
+
+      if (!response.ok) {
+        throw new Error('An error occurred while creating the question');
+      }
+
+      return response.json();
+    },
+  });
+
+  function onSubmit(data: z.infer<typeof FormSchema>) {
+    mutate(data);
+
+    toast({
+      title: 'You submitted the following values:',
+      description: (
+        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+        </pre>
+      ),
+    });
+  }
+
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[800px]">
-        <DialogHeader>
-          <DialogTitle>Answer Question</DialogTitle>
-          <DialogDescription>
-            Answer the question here. Click save when youre done.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="grid gap-4 w-full">
-            <Label htmlFor="question">Question</Label>
-            <Textarea id="question" placeholder="Enter your answer" />
-            <div className="flex items-center gap-4">
-              <div className="w-1/2">
-                <Label htmlFor="assigned">Assigned To</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue>Open</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="manuel@testcompany.com">
-                      manuel@testcompany.com
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="w-1/2">
-                <Label htmlFor="status">Company</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue>Open</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Test Company Limited">
-                      Test Company Limited
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="w-1/2">
-              <Label htmlFor="due">Due Date</Label>
-              <Input id="due" type="date" />
-            </div>
-          </div>
-          <Separator orientation="vertical" />
-          <div className="w-[40%]">
-            <div className="flex items-center gap-4">
-              <h3 className="text-lg font-medium">History log</h3>
-            </div>
-            <div className="border-t border-gray-200 dark:border-gray-700">
-              <div className="py-4 grid gap-2">
-                <div className="flex items-center gap-2">
-                  <Avatar className="w-6 h-6">
-                    <AvatarImage alt="Avatar" src="/avatar.jpg" />
-                    <AvatarFallback>JD</AvatarFallback>
-                  </Avatar>
-                  <div className="text-xs flex items-center gap-1">
-                    <span className="font-medium">John Doe</span>
-                    <time className="italic">1 hour ago</time>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Avatar className="w-6 h-6">
-                    <AvatarImage alt="Avatar" src="/avatar.jpg" />
-                    <AvatarFallback>JD</AvatarFallback>
-                  </Avatar>
-                  <div className="text-xs flex items-center gap-1">
-                    <span className="font-medium">John Doe</span>
-                    <time className="italic">1 hour ago</time>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Avatar className="w-6 h-6">
-                    <AvatarImage alt="Avatar" src="/avatar.jpg" />
-                    <AvatarFallback>JD</AvatarFallback>
-                  </Avatar>
-                  <div className="text-xs flex items-center gap-1">
-                    <span className="font-medium">John Doe</span>
-                    <time className="italic">1 hour ago</time>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">
-              Close
-            </Button>
-          </DialogClose>
-          <Button type="submit">Save changes</Button>
-        </DialogFooter>
+      <DialogContent className="sm:max-w-[425px]">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <DialogHeader>
+              <DialogTitle>Answer Question</DialogTitle>
+              <DialogDescription>
+                Question: What is the capital of France?
+              </DialogDescription>
+            </DialogHeader>
+
+            <FormField
+              control={form.control}
+              name="answer"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Answer</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="The answer is..."
+                      className="resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="secondary">
+                  Close
+                </Button>
+              </DialogClose>
+              <Button type="submit">Save question</Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
