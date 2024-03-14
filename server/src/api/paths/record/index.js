@@ -41,12 +41,10 @@ module.exports = function () {
       [
         {
           fields: {
-            _recordId: 'recMqPCsDQ4KVPYEL',
-            companyName: 'Test Company Limited',
-            question:
-              'Do you collect any Special Category Data and if so, how do you use it?',
-            answer:
-              'As a Controller, Test Company doesn’t process any Special Category Data.',
+            _recordId: 'reclOglXmTDK0nMiN',
+            companyName: companyName ?? 'Test Company Limited',
+            question: question ?? 'What is the meaning of life?',
+            answer: '',
             _companyId: 63297,
             createdAt: '15/1/2024',
             updatedAt: '15/1/2024 2:47pm',
@@ -87,16 +85,15 @@ module.exports = function () {
           id: 'reclOglXmTDK0nMiN',
           fields: {
             _recordId: 'recMqPCsDQ4KVPYEL',
-            'Company Name': 'Test Company Limited',
-            Question:
-              'Do you collect any Special Category Data and if so, how do you use it?',
-            Answer:
-              'As a Controller, Test Company doesn’t process any Special Category Data.',
+            companyName: 'Test Company Limited',
+            question: 'What is the meaning of life?',
+            answer:
+              'The meaning of life is to give life meaning. - Viktor Frankl',
             _companyId: 63297,
-            'Created At': '2024-01-15 14:46',
-            'Updated At': '15/1/2024 2:47pm',
-            'Updated By': 'founders+alex@privasee.io',
-            'Created By': 'founders+alex@privasee.io',
+            createdAt: '15/1/2024',
+            updatedAt: '15/1/2024 2:47pm',
+            updatedBy: 'founders+alex@privasee.io',
+            createdBy: 'founders+alex@privasee.io',
           },
         },
       ],
@@ -117,13 +114,16 @@ module.exports = function () {
 
     const { recordId } = body;
 
-    base('Imported table').destroy(recordId, function (err, deletedRecord) {
-      if (err) {
-        console.error(err);
-        return;
+    base('Imported table').destroy(
+      ['reclOglXmTDK0nMiN'],
+      function (err, deletedRecord) {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        res.status(200).send(console.log('Deleted record', deletedRecord.id));
       }
-      res.status(200).send(console.log('Deleted record', deletedRecord.id));
-    });
+    );
   }
 
   GET.apiDoc = {
